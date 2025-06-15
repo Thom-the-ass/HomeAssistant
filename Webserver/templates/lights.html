@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lights Control</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <nav class="navbar navbar-dark bg-dark">
+        <a class="navbar-brand mx-3" href="/">Home</a>
+    </nav>
+
+    <div class="container mt-5">
+        <h1>Control Your Lights</h1>
+
+        {% for location, devices in grouped_devices.items() %}
+        <h2 class="mt-4">{{ location }}</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Device Name</th>
+                    <th>IP Address</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for device in devices %}
+                <tr>
+                    <td>{{ device.name }}</td>
+                    <td>{{ device.ip_address }}</td>
+                    <td>
+                        <button class="btn btn-success" onclick="toggleLight('{{ device.ip_address }}', 'on')">On</button>
+                        <button class="btn btn-danger" onclick="toggleLight('{{ device.ip_address }}', 'off')">Off</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endfor %}
+    </div>
+
+    <script>
+    async function toggleLight(ip, state) {
+        const response = await fetch("/toggle_light", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ip_address: ip, state: state })
+        });
+
+        if (response.ok) {
+            alert(`Light at ${ip} turned ${state}`);
+        } else {
+            alert("Error controlling light.");
+        }
+    }
+    </script>
+
+</body>
+</html>

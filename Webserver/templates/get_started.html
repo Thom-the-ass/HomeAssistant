@@ -54,8 +54,15 @@
                 <input type="text" class="form-control" id="device_name" required>
             </div>
             <div class="mb-3">
-                <label class="form-label">Category</label>
-                <input type="text" class="form-control" id="category" required>
+                <div class="mb-3">
+                    <label class="form-label">Category</label>
+                    <select class="form-control" id="category" required>
+                        <option value="Security">Security</option>
+                        <option value="Lights">Lights</option>
+                        <option value="Climate">Climate</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
             </div>
             <div class="mb-3">
                 <label class="form-label">Location</label>
@@ -69,13 +76,15 @@
         </form>
         
     </div>
+
+    <!-- This script is for adding new devices-->
     <script>
         document.getElementById("device-form").addEventListener("submit", async function(event) {
             event.preventDefault();
         
             const device = {
                 name: document.getElementById("device_name").value,
-                category: document.getElementById("category").value,
+                category: document.getElementById("category").value,  // Gets selected category
                 location: document.getElementById("location").value,
                 ip_address: document.getElementById("ip_address").value
             };
@@ -87,12 +96,15 @@
             });
         
             if (response.ok) {
-                alert("Device saved successfully!");
+                //fetchDevices(); // Refresh the table
+                location.reload();
+                document.getElementById("device-form").reset();
             } else {
                 alert("Error saving device.");
             }
         });
         </script>
+ 
         
 
     <footer class="text-center mt-5 p-4 bg-dark text-light">
