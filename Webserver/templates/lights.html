@@ -43,16 +43,18 @@
 
     <script>
         async function getLightState(ip) {
-        try {
-            const response = await fetch(`http://${ip}/light/status`);
-            const state = response.ok ? await response.text() : "unknown";
-            console.log(`State from ${ip}:`, state);
-            return state;
-    }   catch (error) {
-        console.error("Error fetching light state:", error);
-        return "unknown";
-    }
-}
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 3000); // Set timeout (3 sec)
+
+            try {
+                const response = await fetch(`http://${ip}/light/status`, { signal: controller.signal });
+                clearTimeout(timeout); // Clear timeout if request succeeds
+                return response.ok ? await response.text() : "unknown";
+            } catch (error) {
+                console.error(`Failed to reach ${ip}:`, error);
+                return "not connected";
+            }
+        }
 
         async function toggleLight(ip) {
             try {
@@ -69,21 +71,26 @@
         }
 
         async function updateLightButton(ip) {
-            const state = await getLightState(ip);
-            console.log(`Updating button for ${ip}, state:`, state);
-            
             const button = document.getElementById(`light-btn-${ip}`);
-            if (button) {
-                button.innerText = state === "on" ? "Turn Off" : "Turn On";
-                button.className = state === "on" ? "btn btn-danger" : "btn btn-success";
+            button.innerText = "Checking...";
+
+            const state = await getLightState(ip);
+
+            if (state === "on") {
+                button.innerText = "Turn Off";
+                button.className = "btn btn-danger";
+            } else if (state === "off") {
+                button.innerText = "Turn On";
+                button.className = "btn btn-success";
             } else {
-                console.error(`Button not found for ${ip}`);
+                button.innerText = "Not Connected";
+                button.className = "btn btn-secondary";
             }
         }
 
+        // Update light states on page load
         document.addEventListener("DOMContentLoaded", async () => {
-            const buttons = document.querySelectorAll("[id^='light-btn-']");
-            buttons.forEach(async btn => {
+                document.querySelectorAll("[id^='light-btn-']").forEach(async (btn) => {
                 const ip = btn.id.replace("light-btn-", "");
                 await updateLightButton(ip);
             });

@@ -17,8 +17,8 @@ void handleLightStatus() {
 
 void handleLightToggle() {
     ledState = !ledState; // Toggle LED state
-    digitalWrite(ledPin, ledState ? HIGH : LOW);
-
+    //BEcause this is normally on ,we have to invert this :digitalWrite(ledPin, ledState ? HIGH : LOW);
+    digitalWrite(ledPin, ledState ? LOW : HIGH);
     server.sendHeader("Access-Control-Allow-Origin", "*"); // Allow all origins
     server.send(200, "text/plain", ledState ? "on" : "off");
 }
