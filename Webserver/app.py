@@ -91,6 +91,53 @@ def get_started():
 
     return render_template('get_started.html', devices=devices)
 
+
+@app.route('/devices')
+def devices():
+    try:
+        with open(DEVICE_FILE, "r") as file:
+            devices = json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        devices = []
+
+    # Group devices first by location, then by category
+    grouped_devices = {}
+    for device in devices:
+        location = device["location"]
+        category = device["category"]
+
+        if location not in grouped_devices:
+            grouped_devices[location] = {}
+
+        if category not in grouped_devices[location]:
+            grouped_devices[location][category] = []
+
+        grouped_devices[location][category].append(device)
+
+    return render_template('devices.html', grouped_devices=grouped_devices)
+
+@app.route('/toggle_device', methods=['POST'])
+def toggle_device():
+    data = request.json
+    ip_address = data.get("ip_address")
+    category = data.get("category")
+
+    # Define different endpoints for various device categories
+    action_endpoint = {
+        "Lights": "/light/toggle",
+        "Security": "/security/toggle",
+        "Climate": "/climate/toggle",
+        "Other": "/device/toggle"
+    }
+
+    try:
+        import requests
+        requests.get(f"http://{ip_address}{action_endpoint.get(category, '/device/toggle')}")
+        return jsonify({"status": "success", "message": f"{category} device at {ip_address} toggled."})
+    except requests.exceptions.RequestException:
+        return jsonify({"error": "Failed to send command"}), 500
+
+
 # The index page
 @app.route('/')
 def home():
