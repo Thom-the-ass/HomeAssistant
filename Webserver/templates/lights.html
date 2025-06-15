@@ -31,9 +31,9 @@
                     <td>{{ device.name }}</td>
                     <td>{{ device.ip_address }}</td>
                     <td>
-                        <button class="btn btn-success" onclick="toggleLight('{{ device.ip_address }}', 'on')">On</button>
-                        <button class="btn btn-danger" onclick="toggleLight('{{ device.ip_address }}', 'off')">Off</button>
+                        <button class="btn btn-secondary" id="light-btn-{{ device.ip_address }}" onclick="toggleLight('{{ device.ip_address }}')">Checking...</button>
                     </td>
+                    
                 </tr>
                 {% endfor %}
             </tbody>
@@ -42,20 +42,55 @@
     </div>
 
     <script>
-    async function toggleLight(ip, state) {
-        const response = await fetch("/toggle_light", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ip_address: ip, state: state })
+        async function getLightState(ip) {
+        try {
+            const response = await fetch(`http://${ip}/light/status`);
+            const state = response.ok ? await response.text() : "unknown";
+            console.log(`State from ${ip}:`, state);
+            return state;
+    }   catch (error) {
+        console.error("Error fetching light state:", error);
+        return "unknown";
+    }
+}
+
+        async function toggleLight(ip) {
+            try {
+                const response = await fetch(`http://${ip}/light/toggle`);
+                if (response.ok) {
+                    console.log(`Light toggled at ${ip}`);
+                    updateLightButton(ip); // Update button
+                } else {
+                    console.error("Error toggling light.");
+                }
+            } catch (error) {
+                console.error("Error sending toggle request:", error);
+            }
+        }
+
+        async function updateLightButton(ip) {
+            const state = await getLightState(ip);
+            console.log(`Updating button for ${ip}, state:`, state);
+            
+            const button = document.getElementById(`light-btn-${ip}`);
+            if (button) {
+                button.innerText = state === "on" ? "Turn Off" : "Turn On";
+                button.className = state === "on" ? "btn btn-danger" : "btn btn-success";
+            } else {
+                console.error(`Button not found for ${ip}`);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            const buttons = document.querySelectorAll("[id^='light-btn-']");
+            buttons.forEach(async btn => {
+                const ip = btn.id.replace("light-btn-", "");
+                await updateLightButton(ip);
+            });
         });
 
-        if (response.ok) {
-            alert(`Light at ${ip} turned ${state}`);
-        } else {
-            alert("Error controlling light.");
-        }
-    }
-    </script>
+        </script>
+    
 
 </body>
 </html>

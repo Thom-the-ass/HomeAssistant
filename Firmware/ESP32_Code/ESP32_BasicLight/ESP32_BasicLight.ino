@@ -1,28 +1,27 @@
 #include <WiFi.h>
-#include <WiFiClient.h>
 #include <WebServer.h>
 #include "secrets.h"
 
 const char* ssid = WIFI_SSID;
 const char* password = WIFI_PASSWORD;
 
-WebServer server(80); // ESP32 will host a web server on port 80
-const int ledPin = 22; // Change this based on your ESP32's LED GPIO
+WebServer server(80);
+const int ledPin = 22;
+bool ledState = false; // Tracks LED state
 
-void handleRoot() {
-    server.send(200, "text/plain", "ESP32 Light Control");
+//Note needed to modify this so Flask server can read the status
+void handleLightStatus() {
+    server.sendHeader("Access-Control-Allow-Origin", "*"); // Allow all origins
+    server.send(200, "text/plain", ledState ? "on" : "off");
 }
 
-void handleLightOn() {
-    digitalWrite(ledPin, LOW);
-    server.send(200, "text/plain", "Light On");
-}
+void handleLightToggle() {
+    ledState = !ledState; // Toggle LED state
+    digitalWrite(ledPin, ledState ? HIGH : LOW);
 
-void handleLightOff() {
-    digitalWrite(ledPin, HIGH);
-    server.send(200, "text/plain", "Light Off");
+    server.sendHeader("Access-Control-Allow-Origin", "*"); // Allow all origins
+    server.send(200, "text/plain", ledState ? "on" : "off");
 }
-
 void setup() {
     pinMode(ledPin, OUTPUT);
     WiFi.begin(ssid, password);
@@ -32,16 +31,13 @@ void setup() {
         delay(1000);
         Serial.println("Connecting to WiFi...");
     }
-    
-    Serial.println("Connected to WiFi");
-    Serial.print("ESP32 IP Address: ");
+
+    Serial.println("Connected!");
+    Serial.print("ESP32 IP: ");
     Serial.println(WiFi.localIP());
 
-    // Define routes
-    server.on("/", handleRoot);
-    server.on("/light/on", handleLightOn);
-    server.on("/light/off", handleLightOff);
-
+    server.on("/light/toggle", handleLightToggle);
+    server.on("/light/status", handleLightStatus);
     server.begin();
 }
 
