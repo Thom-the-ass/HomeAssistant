@@ -40,26 +40,34 @@
         </table>
         {% endfor %}
     </div>
-
+    <!--The JS to control the light state-->
     <script>
+        //gets the light state from the esp32
         async function getLightState(ip) {
+            //handle the case where the device cannot be connected to
             const controller = new AbortController();
             const timeout = setTimeout(() => controller.abort(), 3000); // Set timeout (3 sec)
 
             try {
+                //get the status
                 const response = await fetch(`http://${ip}/light/status`, { signal: controller.signal });
                 clearTimeout(timeout); // Clear timeout if request succeeds
+                //either return unknown or the status 
                 return response.ok ? await response.text() : "unknown";
             } catch (error) {
+                //Runs when does not connect
                 console.error(`Failed to reach ${ip}:`, error);
                 return "not connected";
             }
         }
-
+        //changes the state to the next state
         async function toggleLight(ip) {
             try {
+                //fetch data from the esp32 webserver, note that this will change the LED on or off as accessing this page causes
+                //button to toggle
                 const response = await fetch(`http://${ip}/light/toggle`);
                 if (response.ok) {
+                    //can get rid of these console logs
                     console.log(`Light toggled at ${ip}`);
                     updateLightButton(ip); // Update button
                 } else {
@@ -72,16 +80,17 @@
 
         async function updateLightButton(ip) {
             const button = document.getElementById(`light-btn-${ip}`);
+            //Intially set button to say that its checking the connection
             button.innerText = "Checking...";
-
+            //get the state
             const state = await getLightState(ip);
-
+            //update the style of button and the text within it
             if (state === "on") {
                 button.innerText = "Turn Off";
-                button.className = "btn btn-danger";
+                button.className = "btn btn-success";
             } else if (state === "off") {
                 button.innerText = "Turn On";
-                button.className = "btn btn-success";
+                button.className = "btn btn-danger";
             } else {
                 button.innerText = "Not Connected";
                 button.className = "btn btn-secondary";
@@ -96,7 +105,7 @@
             });
         });
 
-        </script>
+    </script>
     
 
 </body>

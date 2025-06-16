@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify, render_template
 
 app = Flask(__name__)
 
+# This Json file is resposible for the storeage of devices
 DEVICE_FILE = "devices.json"
 
 # Toggles lights on and off
@@ -44,6 +45,7 @@ def lights():
 # This is for the configuring new device
 
 # Deleting an item
+# This currently has a bug where it will delete all items of the same name - slightly problematic, might need to add a primary key
 @app.route('/delete_device', methods=['POST'])
 def delete_device():
     device_name = request.json.get("name")
@@ -116,6 +118,7 @@ def devices():
 
     return render_template('devices.html', grouped_devices=grouped_devices)
 
+# Toggles device state - only used in the device menu - might get rid of this
 @app.route('/toggle_device', methods=['POST'])
 def toggle_device():
     data = request.json
