@@ -16,17 +16,5 @@
         "category": "Lights",
         "location": "Main Room",
         "ip_address": "192.168.68.109"
-    },
-    {
-        "name": "Light 4 - Fake",
-        "category": "Lights",
-        "location": "Study",
-        "ip_address": "192.168.68.111"
-    },
-    {
-        "name": "Light 5 - Fake",
-        "category": "Lights",
-        "location": "Main Room",
-        "ip_address": "192.168.2.101"
     }
 ]
