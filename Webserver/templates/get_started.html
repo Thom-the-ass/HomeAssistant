@@ -68,14 +68,35 @@
                 <label class="form-label">Location</label>
                 <input type="text" class="form-control" id="location" required>
             </div>
+            <!--Trying to add a check box for smart devices, if checked, need to change the text for field below from IP address to Control url-->
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="checkbox">
+                <label class="form-check-label" for="checkbox">Default switch checkbox input</label>
+              </div>
             <div class="mb-3">
-                <label class="form-label">IP Address</label>
+                <label class="form-label" id="controlIP">IP Address</label>
                 <input type="text" class="form-control" id="ip_address" required>
             </div>
             <button type="submit" class="btn btn-primary">Save Device</button>
         </form>
         
     </div>
+    <!--This is the script change the text of the controlIp-->
+    <script>
+        //Get the container
+        const checkbox = document.getElementById('checkbox');
+        const statusText = document.getElementById('controlIP');
+
+        //changed based off the status of the button
+        checkbox.addEventListener('change', function() {
+        if (checkbox.checked) {
+        statusText.textContent = 'IP Address';
+        } else {
+        statusText.textContent = 'Control URL';
+        }
+    });
+    </script>
+
 
     <!-- This script is for adding new devices-->
     <script>
