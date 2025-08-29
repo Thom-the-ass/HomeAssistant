@@ -7,6 +7,7 @@ app = Flask(__name__)
 DEVICE_FILE = "devices.json"
 
 # Toggles lights on and off
+# Note to self, this essentially just accesses this url and, update the state of the light
 @app.route('/toggle_light', methods=['POST'])
 def toggle_light():
     data = request.json
@@ -17,6 +18,7 @@ def toggle_light():
 
     # Sending an http request (ie going to the route which will turn the light on or off)
     try:
+        # Can clean this up a bit
         import requests
         requests.get(f"http://{ip_address}/light/{state}")
         return jsonify({"status": "success", "message": f"Light at {ip_address} set to {state}"})
@@ -93,7 +95,7 @@ def get_started():
 
     return render_template('get_started.html', devices=devices)
 
-
+# Raw view to see all the devices, this is not nicely set up and kinda feels redundant, so might need to make this a hidden page
 @app.route('/devices')
 def devices():
     try:
