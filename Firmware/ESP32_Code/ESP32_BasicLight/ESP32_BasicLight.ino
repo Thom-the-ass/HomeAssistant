@@ -21,7 +21,10 @@ void handleLightToggle() {
     digitalWrite(ledPin, ledState ? LOW : HIGH);
     server.sendHeader("Access-Control-Allow-Origin", "*"); // Allow all origins
     server.send(200, "text/plain", ledState ? "on" : "off");
+
 }
+
+// To set up the wifi, the test LED pin, and handle requests from the main server
 void setup() {
     pinMode(ledPin, OUTPUT);
     WiFi.begin(ssid, password);
@@ -36,11 +39,12 @@ void setup() {
     Serial.print("ESP32 IP: ");
     Serial.println(WiFi.localIP());
 
+    // The server directories we handel. Note that we do have access to multiple threads on the esp32, so might be able to make this more complicated for marginal gains
     server.on("/light/toggle", handleLightToggle);
     server.on("/light/status", handleLightStatus);
     server.begin();
 }
-
+// Handel the clients
 void loop() {
     server.handleClient();
 }
