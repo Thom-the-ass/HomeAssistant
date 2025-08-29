@@ -194,4 +194,10 @@ cython_debug/
 .cursorindexingignore
 
 # Things that I do not want to add
+
+#Both of the files that could have the wifi passowrd in it - this could be under an env directory but where is the fun in that
+Firmware/ESP32_Code/ESP32_BasicLight/secrets.h
 Firmware/ESP32_Code/secrets.h
+
+# Might want to include this again - if I change the way that the backend storage works
+devices.json
